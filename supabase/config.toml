@@ -1,0 +1,7 @@
+project_id = "etpxfpgtxbjhfakgutwc"
+
+# Guiden kaldes fra en frontend uden login. Klienten sender anon-nøglen som Bearer,
+# men nye "publishable" nøgler er ikke JWT'er, så JWT-kontrollen slås fra her og
+# adgangen begrænses i stedet med rate limit inde i funktionen.
+[functions.guide]
+verify_jwt = false

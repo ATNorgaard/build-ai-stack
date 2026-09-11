@@ -69,6 +69,28 @@ npm run deploy
 Derefter er `npm run deploy` nok. `vercel.json` sætter framework, build-kommando og lange cache-headers
 på de hash-navngivne filer. Appen bruger hash-routing, så der skal ingen SPA-rewrites til.
 
+### Domænestruktur (anconsult.app)
+
+Alle projekter ligger under ét domæne, ét Vercel-projekt pr. app:
+
+| URL | Vercel-projekt | Kilde |
+|---|---|---|
+| `anconsult.app` (+ `www`) | `anconsult` | Portfolio (Next.js, mappen "Site Anda") |
+| `loesningsbygger.anconsult.app` | `build-ai-stack` | Denne mappe |
+| `<projekt>.anconsult.app` | `<projekt>` | Fremtidige projekter |
+
+Domænet bruger Vercels nameservere med et wildcard-ALIAS, så et nyt subdomæne kræver kun
+`npx vercel domains add <projekt>.anconsult.app <vercel-projekt>`. Ingen DNS-ændringer.
+
+Appen bruger `base: './'` og hash-routing, så den kan også mountes under en sti hvis det senere
+bliver aktuelt, men subdomæne er standarden.
+
+### Git
+
+Mappen er et git-repo (lokalt). For automatisk deploy ved push: opret et tomt repo på GitHub
+(fx `ATNorgaard/loesningsbygger`), tilføj det som `origin`, push, og kør `npx vercel git connect`.
+Så bygger Vercel hver push til `main` til produktion og hver branch til en preview-URL.
+
 Edge-funktionen er åben for alle med linket, og hvert kald koster kredit på OpenRouter-kontoen. Den har en simpel rate limit (6 kald/min pr. IP, 120/time pr. instans,
 justérbar via secrets `GUIDE_RATE_PER_MIN` og `GUIDE_RATE_PER_HOUR`). Tællerne lever pr. isolate, så det er en bremse,
 ikke en garanti. Læg rigtig auth på, før linket deles bredt.

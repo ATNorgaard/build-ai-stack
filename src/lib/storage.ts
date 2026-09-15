@@ -14,18 +14,20 @@ class LocalStore implements Store {
   async load() { return null; }
 }
 
+// Tabellen er lukket for anon; alt går gennem RPC (se supabase/schema.sql), så man skal kende et id
+// for at læse eller skrive. Ingen kan liste alle løsninger eller overskrive dem samlet.
 class SupabaseStore implements Store {
   kind = 'supabase' as const;
   constructor(private sb: SupabaseClient) {}
   async save(s: Solution) {
     persist(s);
-    const { error } = await this.sb.from('solutions').upsert({ id: s.id, name: s.name, data: s, updated_at: new Date(s.updatedAt).toISOString() });
+    const { error } = await this.sb.rpc('save_solution', { p_id: s.id, p_name: s.name, p_data: s, p_updated_at: new Date(s.updatedAt).toISOString() });
     if (error) throw error;
   }
   async load(id: string) {
-    const { data, error } = await this.sb.from('solutions').select('data').eq('id', id).maybeSingle();
+    const { data, error } = await this.sb.rpc('load_solution', { p_id: id });
     if (error) throw error;
-    return normalise(data?.data as Partial<Solution>);
+    return normalise(data as Partial<Solution> | null);
   }
 }
 
